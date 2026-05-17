@@ -1,0 +1,76 @@
+<?php
+namespace App\Models;
+
+use MongoDB\Laravel\Eloquent\Model;
+
+class Product extends Model
+{
+    protected $connection = 'mongodb';
+    protected $collection = 'products';
+
+    protected $fillable = [
+        'name', 'description', 'price', 'category', 'material',
+        'dimensions', 'colors', 'images', 'model_url',
+        'stock_quantity', 'is_published', 'average_rating', 'review_count', 'is_featured'
+    ];
+
+    protected $attributes = [
+        'is_published' => false,
+        'is_featured' => false,
+        'average_rating' => 0,
+        'review_count' => 0,
+    ];
+
+    protected $casts = [
+        'price' => 'float',
+        'stock_quantity' => 'integer',
+        'is_published' => 'boolean',
+        'is_featured' => 'boolean',
+        'average_rating' => 'float',
+        'review_count' => 'integer',
+    ];
+
+    public function setIsPublishedAttribute($value)
+    {
+        $this->attributes['is_published'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function setIsFeaturedAttribute($value)
+    {
+        $this->attributes['is_featured'] = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function setPriceAttribute($value)
+    {
+        $this->attributes['price'] = (float) $value;
+    }
+
+    public function setStockQuantityAttribute($value)
+    {
+        $this->attributes['stock_quantity'] = (int) $value;
+    }
+
+
+    // Scope for full-text search
+    public function scopeSearch($query, $term)
+    {
+        return $query->where(function($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+              ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
+
+    // Scope for category filter
+    public function scopeCategory($query, $category)
+    {
+        return $category ? $query->where('category', $category) : $query;
+    }
+
+    // Scope for price range filter
+    public function scopePriceRange($query, $min, $max)
+    {
+        if ($min) $query->where('price', '>=', (float)$min);
+        if ($max) $query->where('price', '<=', (float)$max);
+        return $query;
+    }
+}
