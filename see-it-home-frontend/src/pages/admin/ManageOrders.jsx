@@ -29,7 +29,7 @@ export default function ManageOrders() {
   const updateStatus = async (id, status) => {
     try {
       await api.put(`/admin/orders/${id}/status`, { status });
-      setOrders(orders.map(o => {
+      setOrders(prevOrders => prevOrders.map(o => {
         const oId = o.id || o._id;
         return oId === id ? { ...o, status } : o;
       }));

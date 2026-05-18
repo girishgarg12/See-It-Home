@@ -19,7 +19,12 @@ class ProductController extends Controller
         $query = Product::where('is_published', true);
 
         if ($request->search) {
-            $query->search($request->search);
+            $term = $request->search;
+            $regex = new \MongoDB\BSON\Regex(preg_quote($term, '/'), 'i');
+            $query->where(function($q) use ($regex) {
+                $q->where('name', 'regex', $regex)
+                  ->orWhere('description', 'regex', $regex);
+            });
         }
         if ($request->category) {
             $query->category($request->category);

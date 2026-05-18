@@ -55,15 +55,20 @@ class Product extends Model
     public function scopeSearch($query, $term)
     {
         return $query->where(function($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-              ->orWhere('description', 'like', "%{$term}%");
+            $regex = new \MongoDB\BSON\Regex(preg_quote($term, '/'), 'i');
+            $q->where('name', 'regex', $regex)
+              ->orWhere('description', 'regex', $regex);
         });
     }
 
-    // Scope for category filter
     public function scopeCategory($query, $category)
     {
-        return $category ? $query->where('category', $category) : $query;
+        if (!$category || $category === 'All') return $query;
+        
+        $singularCategory = rtrim($category, 'sS');
+        $regex = new \MongoDB\BSON\Regex('^' . preg_quote($singularCategory, '/') . 's?$', 'i');
+        
+        return $query->where('category', 'regex', $regex);
     }
 
     // Scope for price range filter

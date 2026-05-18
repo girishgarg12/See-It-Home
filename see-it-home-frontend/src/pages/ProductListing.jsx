@@ -1,19 +1,47 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import ProductCard from '../components/ProductCard';
 
 export default function ProductListing() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'All';
+  
   const [products, setProducts] = useState([]);
   const [loading, setLoading]   = useState(true);
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
 
   useEffect(() => {
-    api.get('/products')
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (activeCategory !== 'All') {
+      params.append('category', activeCategory);
+    }
+    
+    // Also include search parameter if present
+    const searchQuery = searchParams.get('search');
+    if (searchQuery) {
+      params.append('search', searchQuery);
+    }
+
+    api.get(`/products?${params.toString()}`)
       .then(res => {
         setProducts(res.data.data.data || res.data.data || []);
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [activeCategory, searchParams]);
+
+  const handleCategoryClick = (cat) => {
+    setActiveCategory(cat);
+    // Optionally update URL
+    if (cat === 'All') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', cat);
+    }
+    setSearchParams(searchParams);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -22,9 +50,17 @@ export default function ProductListing() {
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-2">Our Collection</h1>
           <p className="text-gray-500">Discover premium furniture crafted for modern living.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {['All', 'Sofas', 'Chairs', 'Tables', 'Beds'].map(cat => (
-            <button key={cat} className="px-4 py-2 rounded-full border border-gray-200 text-sm font-medium hover:border-black hover:bg-black hover:text-white transition">
+            <button 
+              key={cat} 
+              onClick={() => handleCategoryClick(cat)}
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
+                activeCategory === cat 
+                  ? 'border-black bg-black text-white' 
+                  : 'border-gray-200 hover:border-black hover:bg-black hover:text-white'
+              }`}
+            >
               {cat}
             </button>
           ))}
