@@ -13,6 +13,7 @@ class UpdateProductRequest extends FormRequest
             'price'          => 'sometimes|numeric|min:0',
             'category'       => 'sometimes|string',
             'material'       => 'nullable|string',
+            'dimensions'     => 'nullable|string',
             'stock_quantity' => 'sometimes|integer|min:0',
             'colors'         => 'nullable|array',
             'colors.*'       => 'string',

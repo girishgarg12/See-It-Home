@@ -13,6 +13,7 @@ class StoreProductRequest extends FormRequest
             'price'          => 'required|numeric|min:0',
             'category'       => 'required|string',
             'material'       => 'nullable|string',
+            'dimensions'     => 'nullable|string',
             'stock_quantity' => 'required|integer|min:0',
             'colors'         => 'nullable|array',
             'colors.*'       => 'string',

@@ -51,17 +51,17 @@ export default function ProductListing() {
           <p className="text-gray-500">Discover premium furniture crafted for modern living.</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {['All', 'Sofas', 'Chairs', 'Tables', 'Beds'].map(cat => (
+          {[...new Set(['All', 'Sofas', 'Chairs', 'Tables', 'Beds', activeCategory !== 'All' ? activeCategory : null].filter(Boolean))].map(cat => (
             <button 
               key={cat} 
               onClick={() => handleCategoryClick(cat)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
+              className={`px-4 py-2 rounded-full border text-sm font-medium transition capitalize ${
                 activeCategory === cat 
                   ? 'border-black bg-black text-white' 
                   : 'border-gray-200 hover:border-black hover:bg-black hover:text-white'
               }`}
             >
-              {cat}
+              {cat.replace('-', ' ')}
             </button>
           ))}
         </div>

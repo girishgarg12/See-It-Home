@@ -65,6 +65,21 @@ class Product extends Model
     {
         if (!$category || $category === 'All') return $query;
         
+        // Map room categories to product categories
+        $roomMapping = [
+            'living-room' => ['Sofa', 'Chair', 'Table', 'Lamp', 'Decor'],
+            'bedroom' => ['Bed', 'Wardrobe', 'Lamp', 'Decor'],
+            'dining-room' => ['Table', 'Chair', 'Decor'],
+            'home-office' => ['Desk', 'Chair', 'Bookshelf', 'Lamp']
+        ];
+        
+        $categorySlug = strtolower(str_replace(' ', '-', $category));
+        
+        if (array_key_exists($categorySlug, $roomMapping)) {
+            $mappedCategories = $roomMapping[$categorySlug];
+            return $query->whereIn('category', $mappedCategories);
+        }
+        
         $singularCategory = rtrim($category, 'sS');
         $regex = new \MongoDB\BSON\Regex('^' . preg_quote($singularCategory, '/') . 's?$', 'i');
         

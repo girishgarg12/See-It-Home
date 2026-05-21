@@ -27,14 +27,20 @@ export default function ManageOrders() {
   }, [user, authLoading, navigate]);
 
   const updateStatus = async (id, status) => {
+    const previousOrders = [...orders];
+    
+    // Optimistic update: UI changes immediately
+    setOrders(prevOrders => prevOrders.map(o => {
+      const oId = o.id || o._id;
+      return oId === id ? { ...o, status } : o;
+    }));
+
     try {
       await api.put(`/admin/orders/${id}/status`, { status });
-      setOrders(prevOrders => prevOrders.map(o => {
-        const oId = o.id || o._id;
-        return oId === id ? { ...o, status } : o;
-      }));
     } catch (err) {
       alert('Error updating status');
+      // Revert if API fails
+      setOrders(previousOrders);
     }
   };
 

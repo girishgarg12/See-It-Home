@@ -113,9 +113,13 @@ export default function ProductDetail() {
 
         <div>
           <p className="font-medium mb-1">Material: {product.material}</p>
-          <p className="font-medium">
-            Dimensions: {product.dimensions?.length} × {product.dimensions?.width} × {product.dimensions?.height} {product.dimensions?.unit}
-          </p>
+          {product.dimensions && (
+            <p className="font-medium">
+              Dimensions: {typeof product.dimensions === 'string' 
+                ? product.dimensions 
+                : `${product.dimensions.length || ''} × ${product.dimensions.width || ''} × ${product.dimensions.height || ''} ${product.dimensions.unit || ''}`}
+            </p>
+          )}
         </div>
 
         {/* Color selector */}
